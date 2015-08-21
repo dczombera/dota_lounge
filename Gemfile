@@ -25,6 +25,9 @@ gem 'activerecord-import'                    # Add bulk insert functionality to 
 # ================
 # gem 'unicorn'                              # Use Unicorn as the app server
 gem 'therubyracer', platforms: :ruby         # See https://github.com/sstephenson/execjs#readme for more supported runtimes
+gem 'figaro'                                 # keep sensitive config in a single application.yml and out of git
+gem 'paperclip'                              # Handles file uploads, storage, and references in db
+gem 'fastimage'                              # Extract width and height from image files in various formats
 
 
 # documentation
