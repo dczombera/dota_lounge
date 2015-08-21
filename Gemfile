@@ -61,6 +61,7 @@ end
 group :test do
   gem 'shoulda-matchers', require: false     # Shortcuts for testing model validations and more
   gem 'json_spec'                            # validate JSON format
+  gem 'database_cleaner', require: false     # Purge db after each test, config in spec/support/config/
 end
 
 group :development do
