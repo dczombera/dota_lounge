@@ -28,7 +28,8 @@ gem 'therubyracer', platforms: :ruby         # See https://github.com/sstephenso
 gem 'figaro'                                 # keep sensitive config in a single application.yml and out of git
 gem 'paperclip'                              # Handles file uploads, storage, and references in db
 gem 'fastimage'                              # Extract width and height from image files in various formats
-
+gem 'httparty'                               # Let's get the HTTP party started!
+gem 'hashie'                                 # Extend Hashes and make them more awesome.
 
 # documentation
 # =============

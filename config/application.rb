@@ -31,5 +31,8 @@ module DotaLounge
 
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
+
+    # Directories containing classes/modules that are autoloaded
+    config.autoload_paths += Dir["#{config.root}/lib/**/"]
   end
 end
