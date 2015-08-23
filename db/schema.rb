@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150823091818) do
+ActiveRecord::Schema.define(version: 20150823144641) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -24,19 +24,62 @@ ActiveRecord::Schema.define(version: 20150823091818) do
     t.datetime "updated_at",     null: false
   end
 
-  add_index "heroes", ["steam_id"], name: "index_heroes_on_steam_id", using: :btree
+  add_index "heroes", ["steam_id"], name: "index_heroes_on_steam_id", unique: true, using: :btree
 
   create_table "items", force: :cascade do |t|
-    t.integer  "steam_id",    null: false
-    t.string   "name",        null: false
-    t.integer  "cost",        null: false
-    t.boolean  "secret_shop", null: false
-    t.boolean  "side_shop",   null: false
-    t.boolean  "recipe",      null: false
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.integer  "steam_id",                    null: false
+    t.string   "name",                        null: false
+    t.integer  "cost",                        null: false
+    t.boolean  "secret_shop", default: false, null: false
+    t.boolean  "side_shop",   default: false, null: false
+    t.boolean  "recipe",      default: false, null: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
   end
 
-  add_index "items", ["steam_id"], name: "index_items_on_steam_id", using: :btree
+  add_index "items", ["steam_id"], name: "index_items_on_steam_id", unique: true, using: :btree
+
+  create_table "matches", force: :cascade do |t|
+    t.integer  "match_id",                                          null: false
+    t.integer  "match_seq_num",                                     null: false
+    t.datetime "start_time",                                        null: false
+    t.integer  "duration",                                          null: false
+    t.boolean  "radiant_win",                       default: false, null: false
+    t.integer  "tower_status_radiant",                              null: false
+    t.integer  "tower_status_dire",                                 null: false
+    t.integer  "barracks_status_radiant",                           null: false
+    t.integer  "barracks_status_dire",                              null: false
+    t.integer  "cluster",                                           null: false
+    t.integer  "first_blood_time",                                  null: false
+    t.integer  "lobby_type",                                        null: false
+    t.integer  "human_players",                                     null: false
+    t.integer  "leagueid",                                          null: false
+    t.integer  "positive_votes",                                    null: false
+    t.integer  "negative_votes",                                    null: false
+    t.integer  "game_mode",                                         null: false
+    t.integer  "engine"
+    t.integer  "radiant_team_id"
+    t.string   "radiant_name"
+    t.integer  "radiant_logo",            limit: 8
+    t.boolean  "radiant_team_complete"
+    t.integer  "dire_team_id"
+    t.string   "dire_name"
+    t.integer  "dire_logo",               limit: 8
+    t.boolean  "dire_team_complete"
+    t.integer  "radiant_captain"
+    t.integer  "dire_captain"
+    t.jsonb    "picks_bans"
+    t.jsonb    "players",                                           null: false
+    t.datetime "created_at",                                        null: false
+    t.datetime "updated_at",                                        null: false
+  end
+
+  add_index "matches", ["dire_team_id"], name: "index_matches_on_dire_team_id", using: :btree
+  add_index "matches", ["game_mode"], name: "index_matches_on_game_mode", using: :btree
+  add_index "matches", ["leagueid"], name: "index_matches_on_leagueid", using: :btree
+  add_index "matches", ["lobby_type"], name: "index_matches_on_lobby_type", using: :btree
+  add_index "matches", ["match_id"], name: "index_matches_on_match_id", unique: true, using: :btree
+  add_index "matches", ["players"], name: "index_matches_on_players", using: :gin
+  add_index "matches", ["radiant_team_id"], name: "index_matches_on_radiant_team_id", using: :btree
 
 end

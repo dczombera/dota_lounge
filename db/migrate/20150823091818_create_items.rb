@@ -1,7 +1,7 @@
 class CreateItems < ActiveRecord::Migration
   def change
     create_table :items do |t|
-      t.integer :steam_id, null: false, unique: true, index: true
+      t.integer :steam_id, null: false
       t.string :name, null: false
       t.integer :cost, null: false
       t.boolean :secret_shop, null: false, default: false
@@ -10,5 +10,6 @@ class CreateItems < ActiveRecord::Migration
 
       t.timestamps null: false
     end
+    add_index :items, :steam_id, unique: true
   end
 end
