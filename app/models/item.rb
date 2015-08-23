@@ -8,7 +8,7 @@ class Item < ActiveRecord::Base
 
   def update_status item
     self.name = item.name
-    self.steam_id = item.steam_id
+    self.steam_id = item.id
     self.cost = item.cost
     self.secret_shop = item.secret_shop
     self.side_shop = item.side_shop

@@ -21,4 +21,25 @@ RSpec.describe SteamWebApi::Dota2::Refresh do
       }.to change{ Hero.find_by(steam_id: api_heroes.first.id).localized_name }
     end
   end
+
+  describe "refreshes item records in db" do
+    let(:api_items) { SteamWebApi::Dota2::ApiCall::get_items.first }
+
+    before(:each) do
+      allow(SteamWebApi::Dota2::ApiCall).to receive(:get_items).and_return([api_items, 200])
+      SteamWebApi::Dota2::Refresh::items
+    end
+
+    it "creates new records in db" do
+      expect(Item.all.count).to eq(api_items.count)
+    end
+
+    it "updates existing record in db" do
+      api_items.first["name"] = "Millennium Falcon"
+      allow(SteamWebApi::Dota2::ApiCall).to receive(:get_items).and_return([api_items, 200])
+      expect {
+        SteamWebApi::Dota2::Refresh::items
+      }.to change{ Item.find_by(steam_id: api_items.first.id).name }
+    end
+  end
 end
