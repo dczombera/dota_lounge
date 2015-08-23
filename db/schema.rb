@@ -24,7 +24,7 @@ ActiveRecord::Schema.define(version: 20150823144641) do
     t.datetime "updated_at",     null: false
   end
 
-  add_index "heroes", ["steam_id"], name: "index_heroes_on_steam_id", using: :btree
+  add_index "heroes", ["steam_id"], name: "index_heroes_on_steam_id", unique: true, using: :btree
 
   create_table "items", force: :cascade do |t|
     t.integer  "steam_id",                    null: false
@@ -37,7 +37,7 @@ ActiveRecord::Schema.define(version: 20150823144641) do
     t.datetime "updated_at",                  null: false
   end
 
-  add_index "items", ["steam_id"], name: "index_items_on_steam_id", using: :btree
+  add_index "items", ["steam_id"], name: "index_items_on_steam_id", unique: true, using: :btree
 
   create_table "matches", force: :cascade do |t|
     t.integer  "match_id",                                          null: false
