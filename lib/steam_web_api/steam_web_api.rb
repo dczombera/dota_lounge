@@ -80,8 +80,6 @@ module SteamWebApi
               # any records twice we query the API using highest seq number + 1
               next_seq_num = matches.map(&:match_seq_num).max + 1
               matches, status = ApiCall::get_matches_by_seq_num(next_seq_num)
-              Match.import fetched_matches if fetched_matches.any?
-              fetched_matches = []
             end
             Match.import fetched_matches if fetched_matches.any?
           end
