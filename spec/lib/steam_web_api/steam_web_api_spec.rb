@@ -6,7 +6,7 @@ RSpec.describe SteamWebApi::Dota2::Refresh do
 
     before(:each) do
       allow(SteamWebApi::Dota2::ApiCall).to receive(:get_heroes).and_return([api_heroes, 200])
-      SteamWebApi::Dota2::Refresh::heroes
+      SteamWebApi::Dota2::Refresh::refresh_heroes
     end
 
     it "creates new records in db" do
@@ -17,7 +17,7 @@ RSpec.describe SteamWebApi::Dota2::Refresh do
       api_heroes.first["localized_name"] = "Chuck Norris"
       allow(SteamWebApi::Dota2::ApiCall).to receive(:get_heroes).and_return([api_heroes, 200])
       expect {
-        SteamWebApi::Dota2::Refresh::heroes
+        SteamWebApi::Dota2::Refresh::refresh_heroes
       }.to change{ Hero.find_by(steam_id: api_heroes.first.id).localized_name }
     end
   end
@@ -27,7 +27,7 @@ RSpec.describe SteamWebApi::Dota2::Refresh do
 
     before(:each) do
       allow(SteamWebApi::Dota2::ApiCall).to receive(:get_items).and_return([api_items, 200])
-      SteamWebApi::Dota2::Refresh::items
+      SteamWebApi::Dota2::Refresh::refresh_items
     end
 
     it "creates new records in db" do
@@ -38,7 +38,7 @@ RSpec.describe SteamWebApi::Dota2::Refresh do
       api_items.first["name"] = "Millennium Falcon"
       allow(SteamWebApi::Dota2::ApiCall).to receive(:get_items).and_return([api_items, 200])
       expect {
-        SteamWebApi::Dota2::Refresh::items
+        SteamWebApi::Dota2::Refresh::refresh_items
       }.to change{ Item.find_by(steam_id: api_items.first.id).name }
     end
   end
