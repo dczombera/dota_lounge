@@ -43,17 +43,18 @@ module SteamWebApi
     end
 
     class Fetch
+
       # Singleton
       class << self
 
-        def fetch_last_matches
+        def fetch_last_league_matches
           # Check if there are any records in the db
           # in order to use the last match seq number
           if last_match_seq_num = Match.order("match_seq_num DESC").try(:first).try(:match_seq_num)
-            get_matches(last_match_seq_num + 1)
+            get_league_matches(last_match_seq_num + 1)
           # Database is empty so let's fill it
           else
-            get_matches
+            get_league_matches
           end
         end
 
@@ -61,7 +62,7 @@ module SteamWebApi
 
           # The real work horse which gets matches from the Steam Web API
           # and bulk saves them in the db.
-          def get_matches(match_seq_num=nil)
+          def get_league_matches(match_seq_num=nil)
             fetched_matches = []
             matches, status = ApiCall::get_matches_by_seq_num(match_seq_num)
             # status:
@@ -71,17 +72,24 @@ module SteamWebApi
             while status == 1 && matches.any?
               puts "Fetching matches..."
               matches.each do |match|
-                # We wanna convert start time from unix time stamp to DateTime first
-                match["start_time"] = Time.at(match["start_time"]).utc
-                fetched_matches << Match.new(match.to_hash)
+                # We only want to fetch league matches
+                if match.leagueid != 0
+                  # We wanna convert start time from unix time stamp to DateTime first
+                  match["start_time"] = Time.at(match["start_time"]).utc
+                  fetched_matches << Match.new(match.to_hash)
+                end
               end
-              puts "Fetched matches: #{fetched_matches.count}"
+              puts "Matches fetched: #{fetched_matches.count}"
+              puts "Saving matches into db..."
+              Match.import(fetched_matches, validate: false) if fetched_matches.any?
+              puts "Done!"
+              fetched_matches.clear
               # Let's see if there are more matches to fetch. Since we don't want to save
               # any records twice we query the API using highest seq number + 1
               next_seq_num = matches.map(&:match_seq_num).max + 1
+              puts "Next match seq number: #{next_seq_num}"
               matches, status = ApiCall::get_matches_by_seq_num(next_seq_num)
             end
-            Match.import fetched_matches if fetched_matches.any?
           end
       end
     end
