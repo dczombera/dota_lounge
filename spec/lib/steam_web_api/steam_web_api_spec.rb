@@ -49,22 +49,28 @@ RSpec.describe SteamWebApi::Dota2 do
   describe "SteamWebApi::Dota2::Fetch" do
 
     context "fetches matches" do
-      let(:api_match) { SteamWebApi::Dota2::ApiCall::get_matches_by_seq_num.first }
-      let(:api_match2) { SteamWebApi::Dota2::ApiCall::get_matches_by_seq_num(api_match.map(&:match_seq_num).max + 1).first }
+      let!(:api_match) { SteamWebApi::Dota2::ApiCall::get_matches_by_seq_num.first }
+      let!(:api_match2) { SteamWebApi::Dota2::ApiCall::get_matches_by_seq_num(api_match.map(&:match_seq_num).max + 1).first }
+      let(:api_match_count) do
+        api_match.select { |match| match.leagueid != 0 }.count
+      end
+      let(:api_match2_count) do
+        api_match2.select { |match| match.leagueid != 0 }.count
+      end
 
       before(:each) do
         allow(SteamWebApi::Dota2::ApiCall).to receive(:get_matches_by_seq_num).and_return([api_match, 1], [[], 500])
-        SteamWebApi::Dota2::Fetch.fetch_last_matches
+        SteamWebApi::Dota2::Fetch.fetch_last_league_matches
       end
 
       it "creates new records in empty db" do
-        expect(Match.all.count).to eq(api_match.count)
+        expect(Match.all.count).to eq(api_match_count)
       end
 
       it "creates new records in db with records" do
         allow(SteamWebApi::Dota2::ApiCall).to receive(:get_matches_by_seq_num).and_return([api_match2, 1], [[], 500])
-        SteamWebApi::Dota2::Fetch.fetch_last_matches
-        expect(Match.all.count).to eq(api_match.count + api_match2.count)
+        SteamWebApi::Dota2::Fetch.fetch_last_league_matches
+        expect(Match.all.count).to eq(api_match_count + api_match2_count)
       end
     end
   end

@@ -11,15 +11,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150823144641) do
+ActiveRecord::Schema.define(version: 20150826110840) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
+  create_table "abilities", force: :cascade do |t|
+    t.integer  "steam_id",       null: false
+    t.integer  "hero_id",        null: false
+    t.string   "name",           null: false
+    t.string   "localized_name"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+  end
+
+  add_index "abilities", ["steam_id"], name: "index_abilities_on_steam_id", unique: true, using: :btree
+
   create_table "heroes", force: :cascade do |t|
     t.string   "name",           null: false
     t.integer  "steam_id",       null: false
-    t.string   "localized_name", null: false
+    t.string   "localized_name"
     t.datetime "created_at",     null: false
     t.datetime "updated_at",     null: false
   end
@@ -27,14 +38,15 @@ ActiveRecord::Schema.define(version: 20150823144641) do
   add_index "heroes", ["steam_id"], name: "index_heroes_on_steam_id", unique: true, using: :btree
 
   create_table "items", force: :cascade do |t|
-    t.integer  "steam_id",                    null: false
-    t.string   "name",                        null: false
-    t.integer  "cost",                        null: false
-    t.boolean  "secret_shop", default: false, null: false
-    t.boolean  "side_shop",   default: false, null: false
-    t.boolean  "recipe",      default: false, null: false
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
+    t.integer  "steam_id",                       null: false
+    t.string   "name",                           null: false
+    t.string   "localized_name"
+    t.integer  "cost",                           null: false
+    t.boolean  "secret_shop",    default: false, null: false
+    t.boolean  "side_shop",      default: false, null: false
+    t.boolean  "recipe",         default: false, null: false
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
   end
 
   add_index "items", ["steam_id"], name: "index_items_on_steam_id", unique: true, using: :btree

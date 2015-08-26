@@ -3,7 +3,7 @@ class CreateHeroes < ActiveRecord::Migration
     create_table :heroes do |t|
       t.string :name, null: false
       t.integer :steam_id, null: false
-      t.string :localized_name, null: false
+      t.string :localized_name
 
       t.timestamps null: false
     end
