@@ -25,9 +25,8 @@ module SteamWebApi
                   data_from_api.each do |api_data|
                     api_data.steam_id = api_data.id
                   end
-                  byebug if klass == Item
                   updated_records << klass.new(api_data.to_hash)
-              end
+                end
               end
             end
             # Save records in db using activerecord-import method
@@ -35,7 +34,7 @@ module SteamWebApi
           end
         end
       end
-
+      
       define_refresh_method Hero # define "heroes" method
       define_refresh_method Item # define "items"" method
     end

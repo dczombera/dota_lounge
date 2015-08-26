@@ -1,6 +1,6 @@
 class Item < ActiveRecord::Base
 
-  validates_presence_of :steam_id, :name, :cost
+  validates_presence_of :steam_id, :name, :localized_name, :cost
   validates_inclusion_of :secret_shop, in: [true, false], allow_nil: false
   validates_inclusion_of :side_shop, in: [true, false], allow_nil: false
   validates_inclusion_of :recipe, in: [true, false], allow_nil: false
