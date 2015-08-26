@@ -19,17 +19,15 @@ module SteamWebApi
                 if db_record = records_from_db[api_data.id]
                   db_record.update_status(api_data)
                   db_record.save if db_record.changed?
+                # Let's create a new record since id wasn't found in db
                 else
-                  # TODO: needs to be refactored because it's too specific
-                  # Let's create a new record since id wasn't found in db
-                  if klass.name == "Hero"
-                    updated_records << klass.new(steam_id: api_data.id, name: api_data.name, localized_name: api_data.localized_name)
-                  else
-                    updated_records << klass.new(steam_id: api_data.id, name: api_data.name, cost: api_data.cost,
-                                              secret_shop: api_data.secret_shop, side_shop: api_data.side_shop,
-                                              recipe: api_data.recipe)
+                  # Prepare api data for mass assignment
+                  data_from_api.each do |api_data|
+                    api_data.steam_id = api_data.id
                   end
-                end
+                  byebug if klass == Item
+                  updated_records << klass.new(api_data.to_hash)
+              end
               end
             end
             # Save records in db using activerecord-import method
