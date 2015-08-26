@@ -3,7 +3,7 @@ class CreateItems < ActiveRecord::Migration
     create_table :items do |t|
       t.integer :steam_id, null: false
       t.string :name, null: false
-      t.string :localized_name, null: false
+      t.string :localized_name
       t.integer :cost, null: false
       t.boolean :secret_shop, null: false, default: false
       t.boolean :side_shop, null: false, default: false

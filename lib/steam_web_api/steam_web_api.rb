@@ -22,9 +22,7 @@ module SteamWebApi
                 # Let's create a new record since id wasn't found in db
                 else
                   # Prepare api data for mass assignment
-                  data_from_api.each do |api_data|
-                    api_data.steam_id = api_data.id
-                  end
+                  api_data["steam_id"] = api_data.delete(:id)
                   updated_records << klass.new(api_data.to_hash)
                 end
               end
@@ -34,9 +32,11 @@ module SteamWebApi
           end
         end
       end
-      
-      define_refresh_method Hero # define "heroes" method
-      define_refresh_method Item # define "items"" method
+
+      # Define refresher methods for Hero, Item and Ability
+      define_refresh_method Hero
+      define_refresh_method Item
+      define_refresh_method Ability
     end
 
     class Fetch
@@ -112,6 +112,15 @@ module SteamWebApi
         def get_items
           api_result = Hashie::Mash.new(get("/IEconDOTA2_205790/GetGameItems/V001/?key=#{ENV["steam_web_api_key"]}&language=en_us"))
           return [api_result.result.items, api_result.result.status]
+        end
+
+        # Since the Steam Web Api doesn't offer an endpoint for the ability id's
+        # we are using a json file with all the information.
+        # Ref. http://dev.dota2.com/showthread.php?t=104192
+        def get_abilities
+          # We are using Mash.load since we read a local file
+          ability_data = Hashie::Mash.load("#{Rails.root}/public/abilities.json")
+          return [ability_data.result.abilities, ability_data.result.status]
         end
 
         def get_matches_by_seq_num(match_seq_num=nil)
