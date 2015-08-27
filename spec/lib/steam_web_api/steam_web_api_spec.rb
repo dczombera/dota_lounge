@@ -7,7 +7,7 @@ RSpec.describe SteamWebApi::Dota2 do
       let(:api_heroes) { SteamWebApi::Dota2::ApiCall::get_heroes.first }
 
       before(:each) do
-        allow(SteamWebApi::Dota2::ApiCall).to receive(:get_heroes).and_return([api_heroes, 200])
+        allow(SteamWebApi::Dota2::ApiCall).to receive(:get_heroes).and_return([api_heroes.deep_dup, 200])
         SteamWebApi::Dota2::Refresh::refresh_heroes
       end
 
@@ -17,7 +17,7 @@ RSpec.describe SteamWebApi::Dota2 do
 
       it "updates existing record in db" do
         api_heroes.first["localized_name"] = "Chuck Norris"
-        allow(SteamWebApi::Dota2::ApiCall).to receive(:get_heroes).and_return([api_heroes, 200])
+        allow(SteamWebApi::Dota2::ApiCall).to receive(:get_heroes).and_return([api_heroes.deep_dup, 200])
         expect {
           SteamWebApi::Dota2::Refresh::refresh_heroes
         }.to change{ Hero.find_by(steam_id: api_heroes.first.id).localized_name }
@@ -28,7 +28,7 @@ RSpec.describe SteamWebApi::Dota2 do
       let(:api_items) { SteamWebApi::Dota2::ApiCall::get_items.first }
 
       before(:each) do
-        allow(SteamWebApi::Dota2::ApiCall).to receive(:get_items).and_return([api_items, 200])
+        allow(SteamWebApi::Dota2::ApiCall).to receive(:get_items).and_return([api_items.deep_dup, 200])
         SteamWebApi::Dota2::Refresh::refresh_items
       end
 
@@ -38,10 +38,31 @@ RSpec.describe SteamWebApi::Dota2 do
 
       it "updates existing record in db" do
         api_items.first["name"] = "Millennium Falcon"
-        allow(SteamWebApi::Dota2::ApiCall).to receive(:get_items).and_return([api_items, 200])
+        allow(SteamWebApi::Dota2::ApiCall).to receive(:get_items).and_return([api_items.deep_dup, 200])
         expect {
           SteamWebApi::Dota2::Refresh::refresh_items
         }.to change{ Item.find_by(steam_id: api_items.first.id).name }
+      end
+    end
+
+    context "refreshes abilities in db" do
+      let(:api_abilities) { SteamWebApi::Dota2::ApiCall::get_abilities.first }
+
+      before(:each) do
+        allow(SteamWebApi::Dota2::ApiCall).to receive(:get_abilities).and_return([api_abilities.deep_dup, 200])
+        SteamWebApi::Dota2::Refresh::refresh_abilities
+      end
+
+      it "creates new records in db" do
+        expect(Ability.all.count).to eq(api_abilities.count)
+      end
+
+      it "updates existing record in db" do
+        api_abilities.first["localized_name"] = "Berserker's Call"
+        allow(SteamWebApi::Dota2::ApiCall).to receive(:get_abilities).and_return([api_abilities.deep_dup, 200])
+        expect {
+          SteamWebApi::Dota2::Refresh::refresh_abilities
+        }.to change{ Ability.find_by(steam_id: api_abilities.first.id).localized_name }
       end
     end
   end

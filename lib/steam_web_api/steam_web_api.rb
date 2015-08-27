@@ -16,13 +16,13 @@ module SteamWebApi
               records_from_db = klass.all.try(:index_by, &:steam_id)
 
               data_from_api.map do |api_data|
-                if db_record = records_from_db[api_data.id]
+                if db_record = records_from_db[api_data.id.to_i]
                   db_record.update_status(api_data)
                   db_record.save if db_record.changed?
                 # Let's create a new record since id wasn't found in db
                 else
                   # Prepare api data for mass assignment
-                  api_data["steam_id"] = api_data.delete(:id)
+                  api_data.steam_id = api_data.delete(:id)
                   updated_records << klass.new(api_data.to_hash)
                 end
               end
