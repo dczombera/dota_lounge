@@ -94,5 +94,46 @@ RSpec.describe SteamWebApi::Dota2 do
         expect(Match.all.count).to eq(api_match_count + api_match2_count)
       end
     end
+
+    context "fetches leagues" do
+      let(:leagues) do
+        data = { "leagues": [
+          {
+            "name"=>"#DOTA_Item_Dota_2_Just_For_Fun",
+            "leagueid"=>1212,
+            "description"=>"#DOTA_Item_Desc_Dota_2_Just_For_Fun",
+            "tournament_url"=>"https://binarybeast.com/xDOTA21404228/",
+            "itemdef"=>10541
+          },
+          {
+            "name"=>"#DOTA_Item_joinDOTA_League_Season_3",
+            "leagueid"=>1640,
+            "description"=>"#DOTA_Item_Desc_joinDOTA_League_Season_3",
+            "tournament_url"=>"http://www.joindota.com/en/leagues/",
+            "itemdef"=>10742
+          }
+        ]}
+        Hashie::Mash.new(data).leagues
+      end
+
+
+
+      before(:each) do
+        allow(SteamWebApi::Dota2::ApiCall).to receive(:get_leagues).and_return(leagues)
+        SteamWebApi::Dota2::Fetch.fetch_leagues
+      end
+
+      it "creates new records in empty db" do
+        expect(League.all.count).to eq(leagues.count)
+      end
+
+      it "updates records in db" do
+        leagues.first["name"] = "ESL One"
+        allow(SteamWebApi::Dota2::ApiCall).to receive(:get_leagues).and_return(leagues)
+        expect {
+          SteamWebApi::Dota2::Fetch.fetch_leagues
+        }.to change{ League.find_by(leagueid: leagues.first.leagueid).name }
+      end
+    end
   end
 end

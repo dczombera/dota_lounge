@@ -8,6 +8,5 @@ RSpec.describe League, type: :model do
     it { should validate_presence_of :leagueid }
     it { should validate_presence_of :description }
     it { should validate_presence_of :tournament_url }
-    it { should validate_uniqueness_of :leagueid }
   end
 end

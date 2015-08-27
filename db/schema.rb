@@ -61,7 +61,7 @@ ActiveRecord::Schema.define(version: 20150827102749) do
     t.datetime "updated_at",     null: false
   end
 
-  add_index "leagues", ["leagueid"], name: "index_leagues_on_leagueid", unique: true, using: :btree
+  add_index "leagues", ["leagueid"], name: "index_leagues_on_leagueid", using: :btree
 
   create_table "matches", force: :cascade do |t|
     t.integer  "match_id",                                          null: false
