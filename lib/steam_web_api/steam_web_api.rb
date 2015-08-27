@@ -9,26 +9,26 @@ module SteamWebApi
           name = klass.name.downcase.pluralize
           define_singleton_method("refresh_#{name}") do
             # used for activerecord-import for bulk inserting data
-            updated_records = []
+            new_records = []
             data_from_api, status =  ApiCall.send "get_#{name}"
             # Check if API call was successful
             if status == 200
               records_from_db = klass.all.try(:index_by, &:steam_id)
 
-              data_from_api.map do |api_data|
-                if db_record = records_from_db[api_data.id]
+              data_from_api.each do |api_data|
+                if db_record = records_from_db[api_data.id.to_i]
                   db_record.update_status(api_data)
                   db_record.save if db_record.changed?
                 # Let's create a new record since id wasn't found in db
                 else
                   # Prepare api data for mass assignment
-                  api_data["steam_id"] = api_data.delete(:id)
-                  updated_records << klass.new(api_data.to_hash)
+                  api_data.steam_id = api_data.delete(:id)
+                  new_records << klass.new(api_data.to_hash)
                 end
               end
             end
             # Save records in db using activerecord-import method
-            klass.import updated_records if updated_records.any?
+            klass.import new_records if new_records.any?
           end
         end
       end
@@ -52,6 +52,40 @@ module SteamWebApi
           # Database is empty so let's fill it
           else
             get_league_matches
+          end
+        end
+=begin
+        def fetch_live_league_matches
+          live_matches, status = ApiCall::get_live_league_matches
+          live_match_ids = live_matches.map(&:match_id)
+          if status == 200
+            if Rails.cache.exist?('live_match_ids') &&
+                (finished_match_ids = (Rails.cache.read 'live_match_ids') - live_match_ids)
+              finished_matches = []
+              finished_match_ids.each do |id|
+                finished_matches << LiveLeagueMatch.new(Rails.cache.read('live_matches')[id])
+              end
+              LiveLeageuMatches.import finished_matches if finished_matches.any?
+            end
+            Rails.cache.write 'live_matches', live_matches
+            Rails.cache.write 'live_match_ids', live_match_ids
+          end
+        end
+=end
+        def fetch_leagues
+          api_leagues = ApiCall::get_leagues
+          if api_leagues.any?
+            league_records = []
+            leagues_from_db = League.all.try(:index_by, &:leagueid)
+            api_leagues.each do |api_league|
+              if db_league = leagues_from_db[api_league.leagueid]
+                db_league.update_status(api_league)
+                db_league.save if db_league.changed?
+              else
+                league_records << League.new(api_league.to_hash)
+              end
+            end
+            League.import(league_records, validate: false) if league_records.any?
           end
         end
 
@@ -121,6 +155,23 @@ module SteamWebApi
           # We are using Mash.load since we read a local file
           ability_data = Hashie::Mash.load("#{Rails.root}/public/abilities.json")
           return [ability_data.result.abilities, ability_data.result.status]
+        end
+
+        # Returns an array of Hashie::Mash objects representing the leagues
+        # supported in-game via DotaTV.
+        def get_leagues
+          api_result = Hashie::Mash.new(get("/IDOTA2Match_570/GetLeagueListing/v1?key=#{ENV["steam_web_api_key"]}"))
+          return api_result.result.leagues
+        end
+
+        def get_live_league_matches
+          api_result = Hashie::Mash.new(get("/IDOTA2Match_570/GetLiveLeagueGames/v1?key=#{ENV["steam_web_api_key"]}"))
+          return [api_result.result.games, api_result.result.status]
+        end
+
+        def get_match(match_id)
+          api_result = Hashie::Mash.new(get("/IDOTA2Match_570/GetMatchDetails/v1?key=#{ENV["steam_web_api_key"]}&match_id=#{match_id}"))
+          return api_result
         end
 
         def get_matches_by_seq_num(match_seq_num=nil)

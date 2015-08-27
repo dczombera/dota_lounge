@@ -11,10 +11,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150826110840) do
+ActiveRecord::Schema.define(version: 20150827154326) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+  enable_extension "hstore"
 
   create_table "abilities", force: :cascade do |t|
     t.integer  "steam_id",       null: false
@@ -50,6 +51,40 @@ ActiveRecord::Schema.define(version: 20150826110840) do
   end
 
   add_index "items", ["steam_id"], name: "index_items_on_steam_id", unique: true, using: :btree
+
+  create_table "leagues", force: :cascade do |t|
+    t.string   "name",           null: false
+    t.integer  "leagueid",       null: false
+    t.string   "description",    null: false
+    t.string   "tournament_url", null: false
+    t.integer  "itemdef"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+  end
+
+  add_index "leagues", ["leagueid"], name: "index_leagues_on_leagueid", using: :btree
+
+  create_table "live_league_matches", force: :cascade do |t|
+    t.hstore   "players",                       null: false, array: true
+    t.hstore   "radiant_team",                  null: false
+    t.hstore   "dire_team",                     null: false
+    t.integer  "lobby_id",            limit: 8, null: false
+    t.integer  "match_id",                      null: false
+    t.integer  "spectators"
+    t.integer  "league_id",                     null: false
+    t.integer  "stream_delay_s"
+    t.integer  "radiant_series_wins"
+    t.integer  "dire_series_wins"
+    t.integer  "series_type"
+    t.integer  "league_series_id"
+    t.integer  "league_game_id"
+    t.integer  "league_tier"
+    t.hstore   "scoreboard",                    null: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+  end
+
+  add_index "live_league_matches", ["match_id"], name: "index_live_league_matches_on_match_id", unique: true, using: :btree
 
   create_table "matches", force: :cascade do |t|
     t.integer  "match_id",                                          null: false
