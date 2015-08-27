@@ -54,7 +54,24 @@ module SteamWebApi
             get_league_matches
           end
         end
-
+=begin
+        def fetch_live_league_matches
+          live_matches, status = ApiCall::get_live_league_matches
+          live_match_ids = live_matches.map(&:match_id)
+          if status == 200
+            if Rails.cache.exist?('live_match_ids') &&
+                (finished_match_ids = (Rails.cache.read 'live_match_ids') - live_match_ids)
+              finished_matches = []
+              finished_match_ids.each do |id|
+                finished_matches << LiveLeagueMatch.new(Rails.cache.read('live_matches')[id])
+              end
+              LiveLeageuMatches.import finished_matches if finished_matches.any?
+            end
+            Rails.cache.write 'live_matches', live_matches
+            Rails.cache.write 'live_match_ids', live_match_ids
+          end
+        end
+=end
         def fetch_leagues
           api_leagues = ApiCall::get_leagues
           if api_leagues.any?
@@ -145,6 +162,16 @@ module SteamWebApi
         def get_leagues
           api_result = Hashie::Mash.new(get("/IDOTA2Match_570/GetLeagueListing/v1?key=#{ENV["steam_web_api_key"]}"))
           return api_result.result.leagues
+        end
+
+        def get_live_league_matches
+          api_result = Hashie::Mash.new(get("/IDOTA2Match_570/GetLiveLeagueGames/v1?key=#{ENV["steam_web_api_key"]}"))
+          return [api_result.result.games, api_result.result.status]
+        end
+
+        def get_match(match_id)
+          api_result = Hashie::Mash.new(get("/IDOTA2Match_570/GetMatchDetails/v1?key=#{ENV["steam_web_api_key"]}&match_id=#{match_id}"))
+          return api_result
         end
 
         def get_matches_by_seq_num(match_seq_num=nil)
