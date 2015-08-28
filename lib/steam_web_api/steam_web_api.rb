@@ -54,24 +54,29 @@ module SteamWebApi
             get_league_matches
           end
         end
-=begin
+
         def fetch_live_league_matches
+          puts "Fetching live matches..."
           live_matches, status = ApiCall::get_live_league_matches
           live_match_ids = live_matches.map(&:match_id)
           if status == 200
-            if Rails.cache.exist?('live_match_ids') &&
-                (finished_match_ids = (Rails.cache.read 'live_match_ids') - live_match_ids)
-              finished_matches = []
-              finished_match_ids.each do |id|
-                finished_matches << LiveLeagueMatch.new(Rails.cache.read('live_matches')[id])
+            if Rails.cache.exist?('live_match_ids')
+              finished_match_ids = Rails.cache.read('live_match_ids') - live_match_ids
+              if finished_match_ids.any?
+                puts "Saving finished matches into db..."
+                finished_matches = []
+                finished_match_ids.each do |id|
+                  finished_matches << LiveLeagueMatch.new(Rails.cache.read('live_matches')[id].to_hash)
+                end
+                LiveLeagueMatch.import finished_matches if finished_matches.any?
+                puts "Done!"
               end
-              LiveLeageuMatches.import finished_matches if finished_matches.any?
             end
-            Rails.cache.write 'live_matches', live_matches
+            Rails.cache.write 'live_matches', live_matches.index_by(&:match_id)
             Rails.cache.write 'live_match_ids', live_match_ids
           end
         end
-=end
+
         def fetch_leagues
           api_leagues = ApiCall::get_leagues
           if api_leagues.any?
