@@ -135,5 +135,22 @@ RSpec.describe SteamWebApi::Dota2 do
         }.to change{ League.find_by(leagueid: leagues.first.leagueid).name }
       end
     end
+
+    context "fetches live league matches" do
+      let(:live_match) { [Hashie::Mash.new(attributes_for(:live_league_match))] }
+
+      before(:each) do
+        allow(SteamWebApi::Dota2::ApiCall).to receive(:get_live_league_matches).and_return([live_match, 200])
+        SteamWebApi::Dota2::Fetch.fetch_live_league_matches
+      end
+
+      it "creates new record for finished live match" do
+        live_match.first.match_id += 1
+        allow(SteamWebApi::Dota2::ApiCall).to receive(:get_live_league_matches).and_return([live_match, 200])
+        expect {
+          SteamWebApi::Dota2::Fetch.fetch_live_league_matches
+        }.to change(LiveLeagueMatch, :count).by(1)
+      end
+    end
   end
 end

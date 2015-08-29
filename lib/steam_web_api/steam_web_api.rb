@@ -10,6 +10,7 @@ module SteamWebApi
           define_singleton_method("refresh_#{name}") do
             # used for activerecord-import for bulk inserting data
             new_records = []
+            puts "Fetching #{name}..."
             data_from_api, status =  ApiCall.send "get_#{name}"
             # Check if API call was successful
             if status == 200
@@ -26,9 +27,11 @@ module SteamWebApi
                   new_records << klass.new(api_data.to_hash)
                 end
               end
+              puts "Saving updated #{name} into db..."
+              # Save records in db using activerecord-import method
+              klass.import new_records if new_records.any?
+              puts "Done!"
             end
-            # Save records in db using activerecord-import method
-            klass.import new_records if new_records.any?
           end
         end
       end
