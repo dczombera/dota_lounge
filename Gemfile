@@ -43,7 +43,7 @@ end
 group :development do
 
 end
-#gem 'whenever', require: false              # Configure cron jobs on server
+gem 'whenever', require: false              # Configure cron jobs on server
 
 
 # debug & test
