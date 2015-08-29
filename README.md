@@ -1,10 +1,10 @@
 # Dota Lounge
 
 Welcome to the Dota lounge; a place to kick back, relax and enjoy some Dota 2 data.
-The goal is to provide a web app that gives a great overview of all important Dota 2 matches including informations such as used heroes, bought items, achieved levels of each player etc. 
+The goal is to provide a web app that serves as a live tracker of current Dota 2 league games. 
 
-With this project I'm using [Valve's Steam Web API](https://developer.valvesoftware.com/wiki/Steam_Web_API) for [Dota 2](https://wiki.teamfortress.com/wiki/WebAPI)
-to improve my Ruby on Rails skills while simultaneously working on a fun project with a lot of growth potential.
+This project will use [Valve's Steam Web API](https://developer.valvesoftware.com/wiki/Steam_Web_API) for [Dota 2](https://wiki.teamfortress.com/wiki/WebAPI).  
+Running live matches and finished matches are fetched/saved into the PostgresSQL db automatically using cronjobs.
 
 ### Tech
 
